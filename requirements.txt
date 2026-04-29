@@ -4,7 +4,8 @@ streamlit
 requests
 torch
 diffusers==0.11.1
-transformers
+transformers==4.35.2
+huggingface_hub==0.19.4
 omegaconf
 safetensors
 einops
