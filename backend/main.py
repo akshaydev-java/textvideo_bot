@@ -5,11 +5,11 @@ import sqlite3
 import os
 from pathlib import Path
 
-# Fixed: Changed relative import to absolute import for execution context
+# Fixed: Using absolute import to prevent 'attempted relative import' error
 try:
-    from .generator import VideoGenerator
-except ImportError:
     from generator import VideoGenerator
+except ImportError:
+    from .generator import VideoGenerator
 
 app = FastAPI(title='AnimateDiff API')
 
@@ -22,7 +22,7 @@ app.add_middleware(
     allow_headers=['*'],
 )
 
-# Initialize generator (Global instance to keep model in memory)
+# Initialize generator
 generator = VideoGenerator()
 
 # Paths
@@ -39,10 +39,7 @@ def read_root():
 @app.post('/generate-video')
 async def generate_video(request: GenerationRequest):
     try:
-        # 1. Generate video
         video_path = generator.generate(prompt=request.prompt)
-        
-        # 2. Store in database
         conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
         cursor.execute(
@@ -51,7 +48,6 @@ async def generate_video(request: GenerationRequest):
         )
         conn.commit()
         conn.close()
-        
         return {"video_path": video_path}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -65,7 +61,6 @@ async def get_history():
         cursor.execute('SELECT id, prompt, video_path, created_at FROM generated_videos ORDER BY created_at DESC')
         rows = cursor.fetchall()
         conn.close()
-        
         return [dict(row) for row in rows]
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
