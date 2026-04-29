@@ -6,10 +6,18 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import sqlite3
 
-# Add the current directory to sys.path so absolute imports work regardless of execution context
+# Add the current directory and the local AnimateDiff folder to sys.path
 current_dir = os.path.dirname(os.path.abspath(__file__))
-if current_dir not in sys.path:
-    sys.path.append(current_dir)
+project_root = os.path.dirname(current_dir)
+
+paths_to_add = [
+    current_dir,
+    os.path.join(project_root, "AnimateDiff")
+]
+
+for p in paths_to_add:
+    if p not in sys.path:
+        sys.path.append(p)
 
 from generator import VideoGenerator
 
@@ -27,8 +35,7 @@ app.add_middleware(
 generator = VideoGenerator()
 
 # Paths
-PROJECT_ROOT = Path(__file__).parent.parent
-DB_PATH = PROJECT_ROOT / "database" / "videos.db"
+DB_PATH = Path(project_root) / "database" / "videos.db"
 
 class GenerationRequest(BaseModel):
     prompt: str
