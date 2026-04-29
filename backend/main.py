@@ -4,7 +4,12 @@ from pydantic import BaseModel
 import sqlite3
 import os
 from pathlib import Path
-from .generator import VideoGenerator
+
+# Fixed: Changed relative import to absolute import for execution context
+try:
+    from .generator import VideoGenerator
+except ImportError:
+    from generator import VideoGenerator
 
 app = FastAPI(title='AnimateDiff API')
 
