@@ -1,19 +1,20 @@
+import sys
+import os
+from pathlib import Path
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import sqlite3
-import os
-from pathlib import Path
 
-# Fixed: Using absolute import to prevent 'attempted relative import' error
-try:
-    from generator import VideoGenerator
-except ImportError:
-    from .generator import VideoGenerator
+# Add the current directory to sys.path so absolute imports work regardless of execution context
+current_dir = os.path.dirname(os.path.abspath(__file__))
+if current_dir not in sys.path:
+    sys.path.append(current_dir)
+
+from generator import VideoGenerator
 
 app = FastAPI(title='AnimateDiff API')
 
-# Configure CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=['*'],
